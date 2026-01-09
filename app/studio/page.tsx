@@ -60,21 +60,30 @@ const exampleSections: SectionConfig[] = [
       },
     ],
     component: ({ config, activeVariant }) => {
+      const heroConfig = config as {
+        title: string;
+        subtitle: string;
+        ctaText: string;
+        imageUrl?: string;
+        imageUrlBw?: string;
+        imageUrlColor?: string;
+      };
+      
       switch (activeVariant) {
         case 'framed':
-          return <HeroVariant1 config={config} />;
+          return <HeroVariant1 config={heroConfig} />;
         case 'geometric':
-          return <HeroVariant2 config={config} />;
+          return <HeroVariant2 config={heroConfig} />;
         case 'interactive':
-          return <HeroVariant3 config={config} />;
+          return <HeroVariant3 config={heroConfig} />;
         case 'grid-panels':
-          return <HeroVariant4 config={config} />;
+          return <HeroVariant4 config={heroConfig} />;
         case 'circle-reveal':
-          return <HeroVariant5 config={config} />;
+          return <HeroVariant5 config={heroConfig} />;
         case 'circle-reveal-alt':
-          return <HeroVariant6 config={config} />;
+          return <HeroVariant6 config={heroConfig} />;
         default:
-          return <HeroVariant1 config={config} />;
+          return <HeroVariant1 config={heroConfig} />;
       }
     },
   },
