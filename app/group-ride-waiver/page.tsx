@@ -14,14 +14,16 @@ export default function GroupRideWaiverPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <Image
-              src="/NRTHPROJ_FULL_WORDMARK_FULL_02_TRANSPARENT.png"
-              alt="North Project"
-              width={600}
-              height={150}
-              className="w-auto h-12 sm:h-16 md:h-20 mb-6"
-              priority
-            />
+            <a href="/" className="inline-block mb-6">
+              <Image
+                src="/NRTHPROJ_FULL_WORDMARK_FULL_02_TRANSPARENT.png"
+                alt="North Project"
+                width={600}
+                height={150}
+                className="w-auto h-12 sm:h-16 md:h-20"
+                priority
+              />
+            </a>
             <h1 
               className="text-3xl sm:text-4xl md:text-5xl uppercase tracking-tighter font-medium mb-2"
               style={{ fontFamily: 'var(--font-pp-neue-montreal)' }}

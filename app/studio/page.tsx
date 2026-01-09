@@ -8,6 +8,7 @@ import { HeroVariant3 } from '@/components/hero/hero-variant-3';
 import { HeroVariant4 } from '@/components/hero/hero-variant-4';
 import { HeroVariant5 } from '@/components/hero/hero-variant-5';
 import { HeroVariant6 } from '@/components/hero/hero-variant-6';
+import { HeroVariant7 } from '@/components/hero/hero-variant-7';
 
 const exampleSections: SectionConfig[] = [
   {
@@ -58,6 +59,12 @@ const exampleSections: SectionConfig[] = [
         mood: 'Minimal',
         background: 'black',
       },
+      {
+        id: 'venetian-slices',
+        name: 'Venetian Slices',
+        mood: 'Wild',
+        background: 'black',
+      },
     ],
     component: ({ config, activeVariant }) => {
       const heroConfig = config as {
@@ -82,6 +89,8 @@ const exampleSections: SectionConfig[] = [
           return <HeroVariant5 config={heroConfig} />;
         case 'circle-reveal-alt':
           return <HeroVariant6 config={heroConfig} />;
+        case 'venetian-slices':
+          return <HeroVariant7 config={heroConfig} />;
         default:
           return <HeroVariant1 config={heroConfig} />;
       }
