@@ -53,7 +53,7 @@ export default function GroupRideWaiverPage() {
           <div className="border-2 border-white p-6 sm:p-8 space-y-6">
             <p className="text-base sm:text-lg leading-relaxed text-white/90">
               You acknowledge and understand the risks of injury that exist while participating in the North Project Group
-              Ride (the "Activity"). You knowingly and voluntarily assume all risks associated with your participation
+              Ride (the &ldquo;Activity&rdquo;). You knowingly and voluntarily assume all risks associated with your participation
               in the Activity, and you waive any and all rights, claims, or causes of action of any kind arising out of
               your participation in the Activity.
             </p>
@@ -62,7 +62,7 @@ export default function GroupRideWaiverPage() {
               You hereby release and forever discharge North Project, LLC, located at 5752 S. Beaumont Dr.,
               Holladay, Utah 84121, together with its affiliates, managers, members, agents, attorneys, staff,
               volunteers, heirs, representatives, predecessors, successors, and assigns (collectively, the
-              "Releasees"), from any and all claims for physical or psychological injury, illness, disability, or death
+              &ldquo;Releasees&rdquo;), from any and all claims for physical or psychological injury, illness, disability, or death
               that you may suffer as a direct or indirect result of your participation in the Activity.
             </p>
           </div>
@@ -97,7 +97,7 @@ export default function GroupRideWaiverPage() {
           <div className="border-t-2 border-white pt-6">
             <p className="text-base sm:text-lg leading-relaxed text-white/90">
               You further agree to indemnify, defend, and hold harmless the Releasees from any and all claims,
-              demands, suits, actions, damages, costs, or expenses, including reasonable attorneys' fees, arising out
+              demands, suits, actions, damages, costs, or expenses, including reasonable attorneys&apos; fees, arising out
               of your participation.
             </p>
           </div>
