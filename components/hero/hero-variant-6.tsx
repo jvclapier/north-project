@@ -134,6 +134,7 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
       className="relative w-full h-screen min-h-[800px] overflow-hidden bg-black"
       onMouseMove={!isMobile ? handleMouseMove : undefined}
       onTouchMove={isMobile ? handleTouchMove : undefined}
+      onClick={needsPermission && !orientationEnabled ? requestOrientationPermission : undefined}
     >
       {/* Background Image - B&W */}
       <div className="absolute inset-0">
@@ -264,23 +265,21 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
         </div>
       </motion.div>
 
-      {/* Mobile Tap Prompt - Only show on iOS when permission needed */}
+      {/* Mobile Hint - Subtle text that fades away */}
       {isMobile && needsPermission && !orientationEnabled && (
-        <motion.button
-          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 border-2 border-white px-6 py-3 bg-black/90 backdrop-blur-sm"
-          onClick={requestOrientationPermission}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          whileTap={{ scale: 0.95 }}
+        <motion.div
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.6, 0.6, 0] }}
+          transition={{ duration: 4, times: [0, 0.15, 0.6, 1], delay: 1.5 }}
         >
           <span 
-            className="text-white text-sm uppercase tracking-widest font-medium"
+            className="text-white/50 text-xs uppercase tracking-widest"
             style={{ fontFamily: 'var(--font-pp-neue-montreal)' }}
           >
-            TAP TO ENABLE TILT
+            tap to enable tilt · drag to explore
           </span>
-        </motion.button>
+        </motion.div>
       )}
     </section>
   );
