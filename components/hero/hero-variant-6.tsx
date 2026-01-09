@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
 interface HeroVariant6Props {
@@ -21,62 +21,83 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const [hasMouseMoved, setHasMouseMoved] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [orientationEnabled, setOrientationEnabled] = useState(false);
+  const [needsPermission, setNeedsPermission] = useState(false);
 
   // Detect mobile device
   useEffect(() => {
     const checkMobile = () => {
       const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
       setIsMobile(isTouchDevice);
+      
+      // Check if we need to request permission (iOS 13+)
+      if (isTouchDevice && 
+          typeof DeviceOrientationEvent !== 'undefined' && 
+          typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        setNeedsPermission(true);
+      } else if (isTouchDevice) {
+        // Android or older iOS - just enable it
+        setOrientationEnabled(true);
+      }
     };
     checkMobile();
   }, []);
 
-  // Device orientation handler for mobile
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const handleOrientation = (e: DeviceOrientationEvent) => {
-      if (e.beta !== null && e.gamma !== null) {
-        // Convert device orientation to x/y coordinates
-        // beta: front-to-back tilt (-180 to 180)
-        // gamma: left-to-right tilt (-90 to 90)
-        
-        // Normalize gamma (left-right) to x position (0-100%)
-        const x = Math.max(0, Math.min(100, 50 + (e.gamma / 90) * 50));
-        
-        // Normalize beta (front-back) to y position (0-100%)
-        // Invert beta so tilting forward moves spotlight down
-        const y = Math.max(0, Math.min(100, 50 + (e.beta / 90) * 50));
-        
-        setMousePosition({ x, y });
-        
-        if (!hasMouseMoved) {
-          setHasMouseMoved(true);
-        }
+  // Orientation handler
+  const handleOrientation = useCallback((e: DeviceOrientationEvent) => {
+    if (e.beta !== null && e.gamma !== null) {
+      // beta: front-to-back tilt (-180 to 180)
+      // gamma: left-to-right tilt (-90 to 90)
+      
+      // Normalize gamma (left-right) to x position (0-100%)
+      const x = Math.max(0, Math.min(100, 50 + (e.gamma / 45) * 50));
+      
+      // Normalize beta (front-back) to y position (0-100%)
+      // Center around 45 degrees (typical phone holding angle)
+      const normalizedBeta = e.beta - 45;
+      const y = Math.max(0, Math.min(100, 50 + (normalizedBeta / 45) * 50));
+      
+      setMousePosition({ x, y });
+      
+      if (!hasMouseMoved) {
+        setHasMouseMoved(true);
       }
-    };
+    }
+  }, [hasMouseMoved]);
 
-    // Request permission for iOS 13+
+  // Request permission on tap (iOS requirement)
+  const requestOrientationPermission = useCallback(async () => {
     if (typeof DeviceOrientationEvent !== 'undefined' && 
         typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      (DeviceOrientationEvent as any).requestPermission()
-        .then((response: string) => {
-          if (response === 'granted') {
-            window.addEventListener('deviceorientation', handleOrientation);
-          }
-        })
-        .catch(() => {
-          // Permission denied or not supported
-        });
-    } else {
-      // Android and older iOS
-      window.addEventListener('deviceorientation', handleOrientation);
+      try {
+        const response = await (DeviceOrientationEvent as any).requestPermission();
+        if (response === 'granted') {
+          setOrientationEnabled(true);
+          setNeedsPermission(false);
+          window.addEventListener('deviceorientation', handleOrientation);
+        }
+      } catch (error) {
+        console.log('Orientation permission denied');
+      }
     }
+  }, [handleOrientation]);
 
+  // Set up orientation listener for Android/older iOS
+  useEffect(() => {
+    if (isMobile && orientationEnabled && !needsPermission) {
+      window.addEventListener('deviceorientation', handleOrientation);
+      return () => {
+        window.removeEventListener('deviceorientation', handleOrientation);
+      };
+    }
+  }, [isMobile, orientationEnabled, needsPermission, handleOrientation]);
+
+  // Cleanup on unmount
+  useEffect(() => {
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, [isMobile, hasMouseMoved]);
+  }, [handleOrientation]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!hasMouseMoved) {
@@ -89,6 +110,21 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
     });
   };
 
+  // Touch move handler as fallback for mobile
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!orientationEnabled && isMobile) {
+      if (!hasMouseMoved) {
+        setHasMouseMoved(true);
+      }
+      const touch = e.touches[0];
+      const rect = e.currentTarget.getBoundingClientRect();
+      setMousePosition({
+        x: ((touch.clientX - rect.left) / rect.width) * 100,
+        y: ((touch.clientY - rect.top) / rect.height) * 100,
+      });
+    }
+  };
+
   const bwImage = config.imageUrlBw || "/NP_Nov25_BW_-154.jpg";
   const colorImage = config.imageUrlColor || "/NP_Nov25_-154.jpg";
 
@@ -97,6 +133,7 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
       ref={ref} 
       className="relative w-full h-screen min-h-[800px] overflow-hidden bg-black"
       onMouseMove={!isMobile ? handleMouseMove : undefined}
+      onTouchMove={isMobile ? handleTouchMove : undefined}
     >
       {/* Background Image - B&W */}
       <div className="absolute inset-0">
@@ -226,6 +263,25 @@ export function HeroVariant6({ config }: HeroVariant6Props) {
           </span>
         </div>
       </motion.div>
+
+      {/* Mobile Tap Prompt - Only show on iOS when permission needed */}
+      {isMobile && needsPermission && !orientationEnabled && (
+        <motion.button
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 border-2 border-white px-6 py-3 bg-black/90 backdrop-blur-sm"
+          onClick={requestOrientationPermission}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <span 
+            className="text-white text-sm uppercase tracking-widest font-medium"
+            style={{ fontFamily: 'var(--font-pp-neue-montreal)' }}
+          >
+            TAP TO ENABLE TILT
+          </span>
+        </motion.button>
+      )}
     </section>
   );
 }
